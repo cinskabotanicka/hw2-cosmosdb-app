@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App — Azure Cosmos DB</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 3rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 560px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 2rem;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-form input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #dde1e7;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: white;
+        }
+
+        .add-form input:focus { border-color: #0078d4; }
+
+        .add-form button {
+            padding: 0.75rem 1.25rem;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .add-form button:hover { background: #005a9e; }
+
+        .task-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: white;
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: opacity 0.2s;
+        }
+
+        .task-item.done { opacity: 0.5; }
+
+        .task-item .title {
+            flex: 1;
+            font-size: 1rem;
+            color: #1a1a2e;
+        }
+
+        .task-item.done .title { text-decoration: line-through; }
+
+        .btn-toggle, .btn-delete {
+            padding: 0.35rem 0.75rem;
+            border: none;
+            border-radius: 7px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-toggle {
+            background: #e8f4fd;
+            color: #0078d4;
+        }
+
+        .btn-toggle:hover { background: #bde0f7; }
+
+        .btn-delete {
+            background: #fde8e8;
+            color: #c0392b;
+        }
+
+        .btn-delete:hover { background: #f7bdbd; }
+
+        .empty {
+            text-align: center;
+            color: #aaa;
+            margin-top: 3rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📝 Todo List</h1>
+    <p class="subtitle">Powered by Azure Cosmos DB (Serverless)</p>
+
+    <form class="add-form" action="/add" method="post">
+        <input type="text" name="title" placeholder="Add a new task..." required autofocus>
+        <button type="submit">Add</button>
+    </form>
+
+    <div class="task-list">
+        {% for task in tasks %}
+        <div class="task-item {% if task.completed %}done{% endif %}">
+            <span class="title">{{ task.title }}</span>
+            <a class="btn-toggle" href="/toggle/{{ task.id }}">
+                {% if task.completed %}Undo{% else %}Done{% endif %}
+            </a>
+            <a class="btn-delete" href="/delete/{{ task.id }}">Delete</a>
+        </div>
+        {% else %}
+        <p class="empty">No tasks yet. Add one above!</p>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
