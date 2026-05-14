@@ -7,6 +7,8 @@ app = Flask(__name__)
 
 # --- Cosmos DB connection ---
 # These are loaded from environment variables (set in Azure App Service → Configuration)
+STATIC_BASE_URL = os.environ.get("STATIC_BASE_URL", "/static")
+
 COSMOS_ENDPOINT = os.environ["COSMOS_ENDPOINT"]
 COSMOS_KEY = os.environ["COSMOS_KEY"]
 DATABASE_NAME = os.environ.get("COSMOS_DATABASE", "todo-db")
@@ -26,7 +28,7 @@ def index():
         query="SELECT * FROM c ORDER BY c._ts DESC",
         enable_cross_partition_query=True
     ))
-    return render_template("index.html", tasks=items)
+    return render_template("index.html", tasks=items, static_base_url=STATIC_BASE_URL)
 
 
 @app.route("/add", methods=["POST"])
