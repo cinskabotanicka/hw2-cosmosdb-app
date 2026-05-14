@@ -2,19 +2,22 @@ import os
 import uuid
 from flask import Flask, render_template, request, redirect, url_for
 from azure.cosmos import CosmosClient, exceptions
+from azure.identity import DefaultAzureCredential
 
 app = Flask(__name__)
 
 # --- Cosmos DB connection ---
-# These are loaded from environment variables (set in Azure App Service → Configuration)
+# Secretless: uses Managed Identity on Azure App Service.
+# Locally falls back to Azure CLI credentials (az login).
+# COSMOS_KEY is no longer needed in production.
 STATIC_BASE_URL = os.environ.get("STATIC_BASE_URL", "/static")
 
 COSMOS_ENDPOINT = os.environ["COSMOS_ENDPOINT"]
-COSMOS_KEY = os.environ["COSMOS_KEY"]
-DATABASE_NAME = os.environ.get("COSMOS_DATABASE", "todo-db")
-CONTAINER_NAME = os.environ.get("COSMOS_CONTAINER", "tasks")
+DATABASE_NAME = os.environ.get("COSMOS_DATABASE", "myapp-db-hw2")
+CONTAINER_NAME = os.environ.get("COSMOS_CONTAINER", "items")
 
-client = CosmosClient(COSMOS_ENDPOINT, credential=COSMOS_KEY)
+credential = DefaultAzureCredential()
+client = CosmosClient(COSMOS_ENDPOINT, credential=credential)
 db = client.get_database_client(DATABASE_NAME)
 container = db.get_container_client(CONTAINER_NAME)
 
@@ -23,7 +26,7 @@ container = db.get_container_client(CONTAINER_NAME)
 
 @app.route("/")
 def index():
-    """List all tasks, ordered by createdAt descending."""
+    """List all tasks, ordered by timestamp descending."""
     items = list(container.query_items(
         query="SELECT * FROM c ORDER BY c._ts DESC",
         enable_cross_partition_query=True
